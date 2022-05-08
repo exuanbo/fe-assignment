@@ -8,7 +8,7 @@ module.exports = {
       version: 'detect'
     }
   },
-  extends: ['eslint:recommended', 'plugin:react/recommended', 'standard'],
+  extends: ['eslint:recommended', 'plugin:react/recommended', 'plugin:react/jsx-runtime', 'standard'],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',

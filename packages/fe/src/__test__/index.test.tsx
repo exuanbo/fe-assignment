@@ -1,6 +1,7 @@
 import { act } from '@testing-library/react'
-import React from 'react'
+import { createMemoryHistory } from 'history'
 import { createRoot } from 'react-dom/client'
+import { Router } from 'react-router-dom'
 
 import { App } from '../App'
 
@@ -18,10 +19,15 @@ afterEach(() => {
 describe('test App', () => {
   it('render success', () => {
     act(() => {
-      createRoot(container!).render(<App/>)
+      const history = createMemoryHistory()
+      createRoot(container!).render(
+        <Router location={history.location} navigator={history}>
+          <App />
+        </Router>
+      )
     })
 
     const title = container?.querySelector('h1')!
-    expect(title.textContent).toBe('Hello world!')
+    expect(title.textContent).toBe('Todo List')
   })
 })
