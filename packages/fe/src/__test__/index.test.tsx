@@ -3,7 +3,7 @@ import { createMemoryHistory } from 'history'
 import { createRoot } from 'react-dom/client'
 import { Router } from 'react-router-dom'
 
-import { App, Tasks } from '../App'
+import { App, Settings, Tasks } from '../App'
 
 let container: HTMLDivElement | null = null
 beforeEach(() => {
@@ -40,5 +40,17 @@ describe('test Tasks', () => {
 
     const selected = container!.querySelector('.MuiSelect-select')!
     expect(selected.textContent).toBe('All')
+  })
+})
+
+describe('test Settings', () => {
+  test('render', () => {
+    act(() => {
+      createRoot(container!).render(<Settings />)
+    })
+
+    const selectedLabel = container!.querySelector('.MuiFormGroup-root label')!
+    const labelText = selectedLabel.querySelector('.MuiFormControlLabel-label')!
+    expect(labelText.textContent).toBe('System')
   })
 })

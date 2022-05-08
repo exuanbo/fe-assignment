@@ -2,7 +2,7 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
-import { App, Tasks } from './App'
+import { App, Settings, Tasks } from './App'
 
 const app = document.getElementById('app')
 const root = createRoot(app!)
@@ -12,6 +12,7 @@ root.render(
       <Routes>
         <Route path='/' element={<App />}>
           <Route path='/' element={<Tasks />} />
+          <Route path='/settings' element={<Settings />} />
         </Route>
       </Routes>
     </BrowserRouter>

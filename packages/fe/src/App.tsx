@@ -5,9 +5,13 @@ import {
   Container,
   CssBaseline,
   FormControl,
+  FormControlLabel,
+  FormLabel,
   GlobalStyles,
   MenuItem,
   Paper,
+  Radio,
+  RadioGroup,
   Select,
   Stack,
   Tab,
@@ -16,9 +20,28 @@ import {
 } from '@mui/material'
 // import { ItemDB } from '@nlpdev/database'
 import React from 'react'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, matchPath, Outlet, useLocation } from 'react-router-dom'
 
-import { useStore, ViewOption } from './store'
+import { Appearance, useStore, ViewOption } from './store'
+
+export const Settings: React.FC = () => {
+  const appearance = useStore((state) => state.appearance)
+  const setAppearance = useStore((state) => state.setAppearance)
+  return (
+    <Box sx={{ height: '100%', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <Stack>
+        <FormControl>
+          <FormLabel>Appearance</FormLabel>
+          <RadioGroup row value={appearance} onChange={(event) => setAppearance(event.target.value as Appearance)}>
+            <FormControlLabel value={Appearance.System} control={<Radio />} label='System' />
+            <FormControlLabel value={Appearance.Dark} control={<Radio />} label='Dark' />
+            <FormControlLabel value={Appearance.Light} control={<Radio />} label='Light' />
+          </RadioGroup>
+        </FormControl>
+      </Stack>
+    </Box>
+  )
+}
 
 export const Tasks: React.FC = () => {
   const viewOption = useStore((state) => state.viewOption)
@@ -42,8 +65,20 @@ export const Tasks: React.FC = () => {
   )
 }
 
-export const App: React.FC = () => {
+const useRouteMatch = (patterns: string[]) => {
   const { pathname } = useLocation()
+  for (const pattern of patterns) {
+    const possibleMatch = matchPath(pattern, pathname)
+    if (possibleMatch) {
+      return possibleMatch
+    }
+  }
+  return null
+}
+
+export const App: React.FC = () => {
+  const routeMatch = useRouteMatch(['/settings', '/'])
+  const currentTab = routeMatch?.pattern.path
   return (
     <>
       <CssBaseline />
@@ -59,8 +94,9 @@ export const App: React.FC = () => {
               </Box>
               <Stack direction='row' height='100%' sx={{ flexGrow: 1 }}>
                 <Box sx={{ height: '100%', borderRight: 1, borderColor: 'divider' }}>
-                  <Tabs orientation='vertical' value={pathname}>
+                  <Tabs orientation='vertical' value={currentTab}>
                     <Tab value='/' to='/' label='Tasks' component={Link} />
+                    <Tab value='/settings' to='/settings' label='Settings' component={Link} />
                   </Tabs>
                 </Box>
                 <Outlet />
