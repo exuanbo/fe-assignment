@@ -1,10 +1,46 @@
-import { Box, colors, Container, CssBaseline, GlobalStyles, Paper, Stack, Tab, Tabs, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  colors,
+  Container,
+  CssBaseline,
+  FormControl,
+  GlobalStyles,
+  MenuItem,
+  Paper,
+  Select,
+  Stack,
+  Tab,
+  Tabs,
+  Typography
+} from '@mui/material'
 // import { ItemDB } from '@nlpdev/database'
 import React from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-// import create from 'zustand'
 
-// const useStore = create(() => ({}))
+import { useStore, ViewOption } from './store'
+
+export const Tasks: React.FC = () => {
+  const viewOption = useStore((state) => state.viewOption)
+  const setViewOption = useStore((state) => state.setViewOption)
+  return (
+    <Box sx={{ width: '100%' }}>
+      <Stack direction='row' justifyContent='space-between' sx={{ px: 2, py: 0.75 }}>
+        <FormControl size='small'>
+          <Select
+            value={viewOption}
+            sx={{ minWidth: 160 }}
+            onChange={(event) => setViewOption(event.target.value as ViewOption)}>
+            <MenuItem value={ViewOption.All}>All</MenuItem>
+            <MenuItem value={ViewOption.NotCompleted}>Not Completed</MenuItem>
+            <MenuItem value={ViewOption.Completed}>Completed</MenuItem>
+          </Select>
+        </FormControl>
+        <Button variant='contained'>Add a Task</Button>
+      </Stack>
+    </Box>
+  )
+}
 
 export const App: React.FC = () => {
   const { pathname } = useLocation()
