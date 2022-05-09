@@ -28,14 +28,19 @@ describe('test App', () => {
     })
 
     const title = container!.querySelector('h1')!
-    expect(title.textContent).toBe('Todo List')
+    expect(title.textContent).toBe('Todo')
   })
 })
 
 describe('test Tasks', () => {
   test('render', () => {
     act(() => {
-      createRoot(container!).render(<Tasks />)
+      const history = createMemoryHistory()
+      createRoot(container!).render(
+        <Router location={history.location} navigator={history}>
+          <Tasks />
+        </Router>
+      )
     })
 
     const selected = container!.querySelector('.MuiSelect-select')!

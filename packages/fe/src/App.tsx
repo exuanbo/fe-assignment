@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Checkbox,
   colors,
   Container,
   CssBaseline,
@@ -8,6 +9,7 @@ import {
   FormControlLabel,
   FormLabel,
   GlobalStyles,
+  Icon,
   MenuItem,
   Paper,
   Radio,
@@ -16,11 +18,12 @@ import {
   Stack,
   Tab,
   Tabs,
+  TextField,
   Typography
 } from '@mui/material'
-// import { ItemDB } from '@nlpdev/database'
-import React, { useState } from 'react'
-import { Link, matchPath, Outlet, useLocation } from 'react-router-dom'
+import { TodoItem } from '@nlpdev/database'
+import React, { useEffect, useState } from 'react'
+import { Link, matchPath, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { Appearance, useStore } from './store'
 
@@ -43,17 +46,131 @@ export const Settings: React.FC = () => {
   )
 }
 
+export const TaskDetail: React.FC = () => {
+  const { id } = useParams()
+  const getTodoItem = useStore((state) => state.getTodoItem)
+  let todoItem: TodoItem | undefined
+  if (id) {
+    todoItem = getTodoItem(id)
+  }
+  const { name = '', description = '', completed = false } = todoItem ?? {}
+  const [nameValue, setNameValue] = useState(name)
+  const [hasNameError, setHasNameError] = useState(false)
+  const [descriptionValue, setDescriptionValue] = useState(description)
+
+  const createTodoItem = useStore((state) => state.createTodoItem)
+  const updateTodoItem = useStore((state) => state.updateTodoItem)
+  const deleteTodoItem = useStore((state) => state.deleteTodoItem)
+  const navigate = useNavigate()
+
+  if (id && !todoItem) {
+    // should display alert
+    return null
+  }
+
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const currentName = event.target.value
+    setNameValue(currentName)
+    setHasNameError(!currentName)
+  }
+
+  const handleDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setDescriptionValue(event.target.value)
+  }
+
+  const handleClickSave = () => {
+    if (!nameValue) {
+      setHasNameError(true)
+      return
+    }
+    const item = { name: nameValue, description: descriptionValue, completed }
+    if (id) {
+      updateTodoItem({ id, ...item })
+    } else {
+      createTodoItem(item)
+    }
+    navigate('/')
+  }
+
+  const handleClickDelete = (id: string) => {
+    deleteTodoItem(id)
+    navigate('/')
+  }
+
+  return (
+    <Paper elevation={1} sx={{ width: '100%', p: 2, mt: 0.75, mx: 2.25, mb: 2, backgroundColor: colors.grey[50] }}>
+      <Stack spacing={2}>
+        <Stack component='form' autoComplete='off' alignItems='center' spacing={2}>
+          <TextField
+            required
+            fullWidth
+            error={hasNameError}
+            helperText={hasNameError ? 'Name is required' : undefined}
+            size='small'
+            variant='standard'
+            label='Name'
+            value={nameValue}
+            onChange={handleNameChange}
+          />
+          <TextField
+            fullWidth
+            multiline
+            minRows={6}
+            maxRows={12}
+            label='Description'
+            value={descriptionValue}
+            onChange={handleDescriptionChange}
+          />
+        </Stack>
+        <Stack direction='row' spacing={2}>
+          {id
+            ? (
+            <Button variant='outlined' color='error' onClick={() => handleClickDelete(id)}>
+              Delete
+            </Button>
+              )
+            : (
+            <Button variant='outlined' onClick={() => navigate('/')}>
+              Cancel
+            </Button>
+              )}
+          <Button variant='contained' color='primary' onClick={handleClickSave}>
+            Save
+          </Button>
+        </Stack>
+      </Stack>
+    </Paper>
+  )
+}
+
 enum ViewOption {
   All = 'all',
   Active = 'active',
   Completed = 'completed',
 }
 
+type TodoItemFilter = (item: TodoItem) => boolean
+
+const getTodoItemFilter = (viewOption: ViewOption): TodoItemFilter => {
+  switch (viewOption) {
+    case ViewOption.Active:
+      return (item) => !item.completed
+    case ViewOption.Completed:
+      return (item) => item.completed
+    default:
+      return () => true
+  }
+}
+
 export const Tasks: React.FC = () => {
   const [viewOption, setViewOption] = useState(ViewOption.All)
+  const todoItemFilter = getTodoItemFilter(viewOption)
+  const navigate = useNavigate()
+  const todoItems = useStore((state) => state.todoItems)
+  const updateTodoItem = useStore((state) => state.updateTodoItem)
   return (
-    <Box sx={{ width: '100%' }}>
-      <Stack direction='row' justifyContent='space-between' sx={{ px: 2, py: 0.75 }}>
+    <Box sx={{ height: '100%', width: '100%' }}>
+      <Stack direction='row' justifyContent='space-between' sx={{ px: 2, py: 0.75, position: 'sticky' }}>
         <FormControl size='small'>
           <Select
             value={viewOption}
@@ -64,7 +181,34 @@ export const Tasks: React.FC = () => {
             <MenuItem value={ViewOption.Completed}>Completed</MenuItem>
           </Select>
         </FormControl>
-        <Button variant='contained'>Add a Task</Button>
+        <Button variant='contained' onClick={() => navigate('/new')}>
+          Add a Task
+        </Button>
+      </Stack>
+      <Stack spacing={2} sx={{ height: '480px', px: 2.25, py: 1.25, overflowY: 'auto' }}>
+        {todoItems
+          .filter(todoItemFilter)
+          .sort((a, b) => Number(b.id) - Number(a.id))
+          .map((todoItem) => {
+            const { id, name, completed } = todoItem
+            const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+              event.preventDefault()
+              updateTodoItem({ ...todoItem, completed: !completed })
+            }
+            return (
+              <Link key={id} to={`/${id}`} style={{ textDecoration: 'none' }}>
+                <Paper elevation={1} sx={{ p: 0.5, backgroundColor: colors.grey[50] }}>
+                  <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{ px: 1, py: 0.5 }}>
+                    <Typography
+                      {...(completed ? { style: { textDecoration: ' line-through', color: 'grey' } } : undefined)}>
+                      {name}
+                    </Typography>
+                    <Checkbox size='medium' checked={completed} onClick={handleClick} />
+                  </Stack>
+                </Paper>
+              </Link>
+            )
+          })}
       </Stack>
     </Box>
   )
@@ -83,32 +227,43 @@ const useRouteMatch = (patterns: string[]) => {
 
 export const App: React.FC = () => {
   const routeMatch = useRouteMatch(['/settings', '/'])
-  const currentTab = routeMatch?.pattern.path
+  const currentTab = routeMatch?.pattern.path ?? '/'
+  const initializeStore = useStore((state) => state.initialize)
+
+  useEffect(() => {
+    (async () => {
+      await initializeStore()
+    })()
+  }, [initializeStore])
+
   return (
     <>
       <CssBaseline />
       <GlobalStyles styles={{ '#app': { backgroundColor: colors.grey[50] } }} />
-      <Container maxWidth='md' sx={{ height: '100vh' }}>
-        <Box sx={{ height: '100%', display: 'flex', alignItems: 'center' }}>
-          <Paper sx={{ height: '50%', width: '100%' }}>
-            <Stack height='100%'>
-              <Box sx={{ width: '100%', borderBottom: 1, borderColor: 'divider', px: 1.5, py: 1 }}>
-                <Typography variant='h6' component='h1'>
-                  Todo List
-                </Typography>
-              </Box>
-              <Stack direction='row' height='100%' sx={{ flexGrow: 1 }}>
-                <Box sx={{ height: '100%', borderRight: 1, borderColor: 'divider' }}>
-                  <Tabs orientation='vertical' value={currentTab}>
-                    <Tab value='/' to='/' label='Tasks' component={Link} />
-                    <Tab value='/settings' to='/settings' label='Settings' component={Link} />
-                  </Tabs>
-                </Box>
-                <Outlet />
-              </Stack>
+      <Container maxWidth='sm' sx={{ height: '100vh', display: 'flex', alignItems: 'center' }}>
+        <Paper sx={{ height: '600px', width: '100%' }}>
+          <Stack height='100%'>
+            <Stack
+              direction='row'
+              alignItems='center'
+              spacing={0.75}
+              sx={{ width: '100%', borderBottom: 1, borderColor: 'divider', px: 1.5, py: 1 }}>
+              <Icon>playlist_add_check</Icon>
+              <Typography variant='h6' component='h1'>
+                Todo
+              </Typography>
             </Stack>
-          </Paper>
-        </Box>
+            <Stack direction='row' sx={{ height: '100%' }}>
+              <Box sx={{ borderRight: 1, borderColor: 'divider' }}>
+                <Tabs orientation='vertical' value={currentTab}>
+                  <Tab value='/' to='/' label='Tasks' component={Link} />
+                  <Tab value='/settings' to='/settings' label='Settings' component={Link} />
+                </Tabs>
+              </Box>
+              <Outlet />
+            </Stack>
+          </Stack>
+        </Paper>
       </Container>
     </>
   )
