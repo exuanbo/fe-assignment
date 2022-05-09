@@ -57,7 +57,7 @@ export const Tasks: React.FC = () => {
         <FormControl size='small'>
           <Select
             value={viewOption}
-            sx={{ minWidth: 160 }}
+            sx={{ minWidth: '8rem' }}
             onChange={(event) => setViewOption(event.target.value as ViewOption)}>
             <MenuItem value={ViewOption.All}>All</MenuItem>
             <MenuItem value={ViewOption.Active}>Active</MenuItem>
@@ -89,10 +89,10 @@ export const App: React.FC = () => {
       <CssBaseline />
       <GlobalStyles styles={{ '#app': { backgroundColor: colors.grey[50] } }} />
       <Container maxWidth='md' sx={{ height: '100vh' }}>
-        <Box sx={{ height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Box sx={{ height: '100%', display: 'flex', alignItems: 'center' }}>
           <Paper sx={{ height: '50%', width: '100%' }}>
             <Stack height='100%'>
-              <Box sx={{ width: '100%', borderBottom: 1, borderColor: 'divider', px: 2, py: 1 }}>
+              <Box sx={{ width: '100%', borderBottom: 1, borderColor: 'divider', px: 1.5, py: 1 }}>
                 <Typography variant='h6' component='h1'>
                   Todo List
                 </Typography>
