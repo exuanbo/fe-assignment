@@ -6,6 +6,7 @@ export type TodoItem = {
   id: string
   name: string
   description: string
+  completed: boolean
 }
 
 export interface TodoDBSchema extends DBSchema {
@@ -24,10 +25,21 @@ const dbAccess = createDBAccess<TodoDBSchema>(
     }
   }))
 
-// ???
 export const ItemDB = {
-  create: (...args: any[]) => {},
-  query: (...args: any[]) => {},
-  update: (...args: any[]) => {},
-  delete: (...args: any[]) => {}
+  create: async (item: TodoItem) => {
+    const db = await dbAccess()
+    await db.add('item', item)
+  },
+  query: async () => {
+    const db = await dbAccess()
+    return await db.getAll('item')
+  },
+  update: async (item: TodoItem) => {
+    const db = await dbAccess()
+    await db.put('item', item)
+  },
+  delete: async (id: string) => {
+    const db = await dbAccess()
+    await db.delete('item', id)
+  }
 }
