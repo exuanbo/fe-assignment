@@ -19,10 +19,10 @@ import {
   Typography
 } from '@mui/material'
 // import { ItemDB } from '@nlpdev/database'
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, matchPath, Outlet, useLocation } from 'react-router-dom'
 
-import { Appearance, useStore, ViewOption } from './store'
+import { Appearance, useStore } from './store'
 
 export const Settings: React.FC = () => {
   const appearance = useStore((state) => state.appearance)
@@ -43,9 +43,14 @@ export const Settings: React.FC = () => {
   )
 }
 
+enum ViewOption {
+  All = 'all',
+  Active = 'active',
+  Completed = 'completed',
+}
+
 export const Tasks: React.FC = () => {
-  const viewOption = useStore((state) => state.viewOption)
-  const setViewOption = useStore((state) => state.setViewOption)
+  const [viewOption, setViewOption] = useState(ViewOption.All)
   return (
     <Box sx={{ width: '100%' }}>
       <Stack direction='row' justifyContent='space-between' sx={{ px: 2, py: 0.75 }}>
@@ -55,7 +60,7 @@ export const Tasks: React.FC = () => {
             sx={{ minWidth: 160 }}
             onChange={(event) => setViewOption(event.target.value as ViewOption)}>
             <MenuItem value={ViewOption.All}>All</MenuItem>
-            <MenuItem value={ViewOption.NotCompleted}>Not Completed</MenuItem>
+            <MenuItem value={ViewOption.Active}>Active</MenuItem>
             <MenuItem value={ViewOption.Completed}>Completed</MenuItem>
           </Select>
         </FormControl>
