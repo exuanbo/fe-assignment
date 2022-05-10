@@ -159,19 +159,15 @@ export const TaskDetail: React.FC = () => {
   )
 }
 
-enum ViewOption {
-  All = 'all',
-  Active = 'active',
-  Completed = 'completed',
-}
+type Visibility = 'all' | 'active' | 'completed'
 
 type TodoItemFilter = (item: TodoItem) => boolean
 
-const getTodoItemFilter = (viewOption: ViewOption): TodoItemFilter => {
-  switch (viewOption) {
-    case ViewOption.Active:
+const getTodoItemFilter = (visibility: Visibility): TodoItemFilter => {
+  switch (visibility) {
+    case 'active':
       return (item) => !item.completed
-    case ViewOption.Completed:
+    case 'completed':
       return (item) => item.completed
     default:
       return () => true
@@ -182,8 +178,8 @@ export const Tasks: React.FC = () => {
   const {
     palette: { mode }
   } = useTheme()
-  const [viewOption, setViewOption] = useState(ViewOption.All)
-  const todoItemFilter = getTodoItemFilter(viewOption)
+  const [visibility, setVisibility] = useState<Visibility>('all')
+  const todoItemFilter = getTodoItemFilter(visibility)
   const navigate = useNavigate()
   const todoItems = useStore((state) => state.todoItems)
   const updateTodoItem = useStore((state) => state.updateTodoItem)
@@ -192,12 +188,12 @@ export const Tasks: React.FC = () => {
       <Stack direction='row' justifyContent='space-between'>
         <FormControl size='small'>
           <Select
-            value={viewOption}
+            value={visibility}
             sx={{ minWidth: '8rem' }}
-            onChange={(event) => setViewOption(event.target.value as ViewOption)}>
-            <MenuItem value={ViewOption.All}>All</MenuItem>
-            <MenuItem value={ViewOption.Active}>Active</MenuItem>
-            <MenuItem value={ViewOption.Completed}>Completed</MenuItem>
+            onChange={(event) => setVisibility(event.target.value as Visibility)}>
+            <MenuItem value='all'>All</MenuItem>
+            <MenuItem value='active'>Active</MenuItem>
+            <MenuItem value='completed'>Completed</MenuItem>
           </Select>
         </FormControl>
         <Button variant='contained' onClick={() => navigate('/new')}>
