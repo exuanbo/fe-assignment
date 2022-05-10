@@ -27,7 +27,7 @@ import {
 } from '@mui/material'
 import { TodoItem } from '@nlpdev/database'
 import React, { useEffect, useMemo, useState } from 'react'
-import { Link, matchPath, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Link, matchPath, Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { Appearance, useStore } from './store'
 
@@ -72,8 +72,7 @@ export const TaskDetail: React.FC = () => {
   } = useTheme()
 
   if (id && !todoItem) {
-    // should display alert
-    return null
+    return <Navigate to='/' />
   }
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,6 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { App, Settings, TaskDetail, Tasks } from './App'
 
@@ -15,6 +15,7 @@ root.render(
           <Route path='/:id' element={<TaskDetail />} />
           <Route path='/new' element={<TaskDetail />} />
           <Route path='/settings' element={<Settings />} />
+          <Route path='*' element={<Navigate to='/' />} />
         </Route>
       </Routes>
     </BrowserRouter>
