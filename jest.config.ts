@@ -5,7 +5,7 @@ const config: Config.InitialOptions = {
   testEnvironment: 'jsdom',
   modulePathIgnorePatterns: ['dist'],
   cacheDirectory: './node_modules/.cache/jest/',
-  coverageProvider: 'v8',
+  // coverageProvider: 'v8',
   clearMocks: true,
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   globals: {
