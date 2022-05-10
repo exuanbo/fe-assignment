@@ -2,7 +2,10 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
-import { App, Settings, TaskDetail, Tasks } from './App'
+import { App } from './App'
+import { Settings } from './Settings'
+import { TaskDetail } from './TaskDetail'
+import { Tasks } from './Tasks'
 
 const app = document.getElementById('app')
 const root = createRoot(app!)

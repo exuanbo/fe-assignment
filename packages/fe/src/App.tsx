@@ -1,233 +1,23 @@
 import {
   Box,
-  Button,
-  Checkbox,
   colors,
   Container,
   createTheme,
   CssBaseline,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
   GlobalStyles,
   Icon,
-  MenuItem,
   Paper,
-  Radio,
-  RadioGroup,
-  Select,
   Stack,
   Tab,
   Tabs,
-  TextField,
   ThemeProvider,
   Typography,
-  useMediaQuery,
-  useTheme
+  useMediaQuery
 } from '@mui/material'
-import { TodoItem } from '@nlpdev/database'
 import React, { useEffect, useMemo, useState } from 'react'
-import { Link, matchPath, Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Link, matchPath, Outlet, useLocation } from 'react-router-dom'
 
-import { Appearance, useStore } from './store'
-
-export const Settings: React.FC = () => {
-  const appearance = useStore((state) => state.appearance)
-  const setAppearance = useStore((state) => state.setAppearance)
-  return (
-    <Box sx={{ height: '100%', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <Stack>
-        <FormControl>
-          <FormLabel>Appearance</FormLabel>
-          <RadioGroup row value={appearance} onChange={(event) => setAppearance(event.target.value as Appearance)}>
-            <FormControlLabel value='system' control={<Radio />} label='System' />
-            <FormControlLabel value='dark' control={<Radio />} label='Dark' />
-            <FormControlLabel value='light' control={<Radio />} label='Light' />
-          </RadioGroup>
-        </FormControl>
-      </Stack>
-    </Box>
-  )
-}
-
-export const TaskDetail: React.FC = () => {
-  const { id } = useParams()
-  const getTodoItem = useStore((state) => state.getTodoItem)
-  let todoItem: TodoItem | undefined
-  if (id) {
-    todoItem = getTodoItem(id)
-  }
-  const { name = '', description = '', completed = false } = todoItem ?? {}
-  const [nameValue, setNameValue] = useState(name)
-  const [hasNameError, setHasNameError] = useState(false)
-  const [descriptionValue, setDescriptionValue] = useState(description)
-
-  const createTodoItem = useStore((state) => state.createTodoItem)
-  const updateTodoItem = useStore((state) => state.updateTodoItem)
-  const deleteTodoItem = useStore((state) => state.deleteTodoItem)
-  const navigate = useNavigate()
-
-  const {
-    palette: { mode }
-  } = useTheme()
-
-  if (id && !todoItem) {
-    return <Navigate to='/' />
-  }
-
-  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const currentName = event.target.value
-    setNameValue(currentName)
-    setHasNameError(!currentName)
-  }
-
-  const handleDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setDescriptionValue(event.target.value)
-  }
-
-  const handleClickSave = () => {
-    if (!nameValue) {
-      setHasNameError(true)
-      return
-    }
-    const item = { name: nameValue, description: descriptionValue, completed }
-    if (id) {
-      updateTodoItem({ id, ...item })
-    } else {
-      createTodoItem(item)
-    }
-    navigate('/')
-  }
-
-  const handleClickDelete = (id: string) => {
-    deleteTodoItem(id)
-    navigate('/')
-  }
-
-  return (
-    <Paper
-      elevation={1}
-      sx={{
-        width: '100%',
-        p: 2,
-        mt: 0.75,
-        mx: 2.25,
-        mb: 2,
-        backgroundColor: colors.grey[mode === 'light' ? 50 : 900]
-      }}>
-      <Stack spacing={2}>
-        <Stack component='form' autoComplete='off' alignItems='center' spacing={2}>
-          <TextField
-            required
-            fullWidth
-            error={hasNameError}
-            helperText={hasNameError ? 'Name is required' : undefined}
-            size='small'
-            variant='standard'
-            label='Name'
-            value={nameValue}
-            onChange={handleNameChange}
-          />
-          <TextField
-            fullWidth
-            multiline
-            minRows={6}
-            maxRows={12}
-            label='Description'
-            value={descriptionValue}
-            onChange={handleDescriptionChange}
-          />
-        </Stack>
-        <Stack direction='row' spacing={2}>
-          {id
-            ? (
-            <Button variant='outlined' color='error' onClick={() => handleClickDelete(id)}>
-              Delete
-            </Button>
-              )
-            : (
-            <Button variant='outlined' onClick={() => navigate('/')}>
-              Cancel
-            </Button>
-              )}
-          <Button variant='contained' color='primary' onClick={handleClickSave}>
-            Save
-          </Button>
-        </Stack>
-      </Stack>
-    </Paper>
-  )
-}
-
-type Visibility = 'all' | 'active' | 'completed'
-
-type TodoItemFilter = (item: TodoItem) => boolean
-
-const getTodoItemFilter = (visibility: Visibility): TodoItemFilter => {
-  switch (visibility) {
-    case 'active':
-      return (item) => !item.completed
-    case 'completed':
-      return (item) => item.completed
-    default:
-      return () => true
-  }
-}
-
-export const Tasks: React.FC = () => {
-  const {
-    palette: { mode }
-  } = useTheme()
-  const [visibility, setVisibility] = useState<Visibility>('all')
-  const todoItemFilter = getTodoItemFilter(visibility)
-  const navigate = useNavigate()
-  const todoItems = useStore((state) => state.todoItems)
-  const updateTodoItem = useStore((state) => state.updateTodoItem)
-  return (
-    <Stack spacing={1.5} sx={{ height: '100%', width: '100%', py: 0.75, px: 2 }}>
-      <Stack direction='row' justifyContent='space-between'>
-        <FormControl size='small'>
-          <Select
-            value={visibility}
-            sx={{ minWidth: '8rem' }}
-            onChange={(event) => setVisibility(event.target.value as Visibility)}>
-            <MenuItem value='all'>All</MenuItem>
-            <MenuItem value='active'>Active</MenuItem>
-            <MenuItem value='completed'>Completed</MenuItem>
-          </Select>
-        </FormControl>
-        <Button variant='contained' onClick={() => navigate('/new')}>
-          Add a Task
-        </Button>
-      </Stack>
-      <Stack spacing={2.25} sx={{ height: '28rem', p: 0.25, overflowY: 'auto' }}>
-        {todoItems
-          .filter(todoItemFilter)
-          .sort((a, b) => Number(b.id) - Number(a.id))
-          .map((todoItem) => {
-            const { id, name, completed } = todoItem
-            const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-              event.preventDefault()
-              updateTodoItem({ ...todoItem, completed: !completed })
-            }
-            return (
-              <Link key={id} to={`/${id}`} style={{ textDecoration: 'none' }}>
-                <Paper elevation={1} sx={{ p: 0.5, backgroundColor: colors.grey[mode === 'light' ? 50 : 900] }}>
-                  <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{ px: 1, py: 0.5 }}>
-                    <Typography
-                      {...(completed ? { style: { textDecoration: ' line-through', color: 'grey' } } : undefined)}>
-                      {name}
-                    </Typography>
-                    <Checkbox size='medium' checked={completed} onClick={handleClick} />
-                  </Stack>
-                </Paper>
-              </Link>
-            )
-          })}
-      </Stack>
-    </Stack>
-  )
-}
+import { useStore } from './store'
 
 const useRouteMatch = (patterns: string[]) => {
   const { pathname } = useLocation()

@@ -4,7 +4,9 @@ import { createMemoryHistory } from 'history'
 import { createRoot } from 'react-dom/client'
 import { Router } from 'react-router-dom'
 
-import { App, Settings, Tasks } from '../App'
+import { App } from '../App'
+import { Settings } from '../Settings'
+import { Tasks } from '../Tasks'
 
 jest.mock('@nlpdev/database', () => {
   const db = new Map<string, TodoItem>()
