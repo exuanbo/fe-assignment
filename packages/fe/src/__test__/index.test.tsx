@@ -40,8 +40,8 @@ afterEach(() => {
 })
 
 describe('test App', () => {
-  test('render', () => {
-    act(() => {
+  test('render', async () => {
+    await act(async () => {
       const history = createMemoryHistory()
       createRoot(container!).render(
         <Router location={history.location} navigator={history}>

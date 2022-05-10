@@ -4,6 +4,7 @@ import {
   Checkbox,
   colors,
   Container,
+  createTheme,
   CssBaseline,
   FormControl,
   FormControlLabel,
@@ -19,10 +20,13 @@ import {
   Tab,
   Tabs,
   TextField,
-  Typography
+  ThemeProvider,
+  Typography,
+  useMediaQuery,
+  useTheme
 } from '@mui/material'
 import { TodoItem } from '@nlpdev/database'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link, matchPath, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { Appearance, useStore } from './store'
@@ -36,9 +40,9 @@ export const Settings: React.FC = () => {
         <FormControl>
           <FormLabel>Appearance</FormLabel>
           <RadioGroup row value={appearance} onChange={(event) => setAppearance(event.target.value as Appearance)}>
-            <FormControlLabel value={Appearance.System} control={<Radio />} label='System' />
-            <FormControlLabel value={Appearance.Dark} control={<Radio />} label='Dark' />
-            <FormControlLabel value={Appearance.Light} control={<Radio />} label='Light' />
+            <FormControlLabel value='system' control={<Radio />} label='System' />
+            <FormControlLabel value='dark' control={<Radio />} label='Dark' />
+            <FormControlLabel value='light' control={<Radio />} label='Light' />
           </RadioGroup>
         </FormControl>
       </Stack>
@@ -62,6 +66,10 @@ export const TaskDetail: React.FC = () => {
   const updateTodoItem = useStore((state) => state.updateTodoItem)
   const deleteTodoItem = useStore((state) => state.deleteTodoItem)
   const navigate = useNavigate()
+
+  const {
+    palette: { mode }
+  } = useTheme()
 
   if (id && !todoItem) {
     // should display alert
@@ -98,7 +106,16 @@ export const TaskDetail: React.FC = () => {
   }
 
   return (
-    <Paper elevation={1} sx={{ width: '100%', p: 2, mt: 0.75, mx: 2.25, mb: 2, backgroundColor: colors.grey[50] }}>
+    <Paper
+      elevation={1}
+      sx={{
+        width: '100%',
+        p: 2,
+        mt: 0.75,
+        mx: 2.25,
+        mb: 2,
+        backgroundColor: colors.grey[mode === 'light' ? 50 : 900]
+      }}>
       <Stack spacing={2}>
         <Stack component='form' autoComplete='off' alignItems='center' spacing={2}>
           <TextField
@@ -163,6 +180,9 @@ const getTodoItemFilter = (viewOption: ViewOption): TodoItemFilter => {
 }
 
 export const Tasks: React.FC = () => {
+  const {
+    palette: { mode }
+  } = useTheme()
   const [viewOption, setViewOption] = useState(ViewOption.All)
   const todoItemFilter = getTodoItemFilter(viewOption)
   const navigate = useNavigate()
@@ -197,7 +217,7 @@ export const Tasks: React.FC = () => {
             }
             return (
               <Link key={id} to={`/${id}`} style={{ textDecoration: 'none' }}>
-                <Paper elevation={1} sx={{ p: 0.5, backgroundColor: colors.grey[50] }}>
+                <Paper elevation={1} sx={{ p: 0.5, backgroundColor: colors.grey[mode === 'light' ? 50 : 900] }}>
                   <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{ px: 1, py: 0.5 }}>
                     <Typography
                       {...(completed ? { style: { textDecoration: ' line-through', color: 'grey' } } : undefined)}>
@@ -226,20 +246,31 @@ const useRouteMatch = (patterns: string[]) => {
 }
 
 export const App: React.FC = () => {
-  const routeMatch = useRouteMatch(['/settings', '/'])
-  const currentTab = routeMatch?.pattern.path ?? '/'
+  const [isReady, setIsReady] = useState(false)
   const initializeStore = useStore((state) => state.initialize)
 
   useEffect(() => {
-    (async () => {
-      await initializeStore()
-    })()
-  }, [initializeStore])
+    if (!isReady) {
+      (async () => {
+        await initializeStore()
+        setIsReady(true)
+      })()
+    }
+  }, [isReady, initializeStore])
 
-  return (
-    <>
+  const appearance = useStore((state) => state.appearance)
+  const preferDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
+  const mode = appearance === 'system' ? (preferDarkMode ? 'dark' : 'light') : appearance
+  const theme = useMemo(() => createTheme({ palette: { mode } }), [mode])
+
+  const routeMatch = useRouteMatch(['/settings', '/'])
+  const currentTab = routeMatch?.pattern.path ?? '/'
+
+  return isReady
+    ? (
+    <ThemeProvider theme={theme}>
       <CssBaseline />
-      <GlobalStyles styles={{ '#app': { backgroundColor: colors.grey[50] } }} />
+      <GlobalStyles styles={{ '#app': { backgroundColor: colors.grey[mode === 'light' ? 50 : 900] } }} />
       <Container maxWidth='sm' sx={{ height: '100vh', display: 'flex', alignItems: 'center' }}>
         <Paper sx={{ height: '600px', width: '100%' }}>
           <Stack height='100%'>
@@ -265,6 +296,7 @@ export const App: React.FC = () => {
           </Stack>
         </Paper>
       </Container>
-    </>
-  )
+    </ThemeProvider>
+      )
+    : null
 }

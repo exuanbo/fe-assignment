@@ -1,11 +1,7 @@
 import { ItemDB, TodoItem } from '@nlpdev/database'
 import create from 'zustand'
 
-export enum Appearance {
-  System = 'system',
-  Dark = 'dark',
-  Light = 'light'
-}
+export type Appearance = 'system' | 'light' | 'dark'
 
 interface RootState {
   _id: number
@@ -54,7 +50,7 @@ export const useStore = create<RootState>((set, get) => ({
     }))
     await ItemDB.delete(id)
   },
-  appearance: Appearance.System,
+  appearance: 'system',
   setAppearance: (appearance) => {
     set({ appearance })
   }
