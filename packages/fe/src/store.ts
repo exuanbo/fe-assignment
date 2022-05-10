@@ -1,5 +1,6 @@
 import { ItemDB, TodoItem } from '@nlpdev/database'
 import create from 'zustand'
+import { persist } from 'zustand/middleware'
 
 export type Appearance = 'system' | 'light' | 'dark'
 
@@ -15,7 +16,7 @@ interface RootState {
   setAppearance: (appearance: Appearance) => void
 }
 
-export const useStore = create<RootState>((set, get) => ({
+export const useStore = create<RootState>()(persist((set, get) => ({
   _id: 0,
   initialize: async () => {
     const todoItems = await ItemDB.query()
@@ -54,4 +55,9 @@ export const useStore = create<RootState>((set, get) => ({
   setAppearance: (appearance) => {
     set({ appearance })
   }
+}), {
+  name: 'settings',
+  partialize: state => ({
+    appearance: state.appearance
+  })
 }))
