@@ -1,9 +1,31 @@
+import type { TodoItem } from '@nlpdev/database'
 import { act } from '@testing-library/react'
 import { createMemoryHistory } from 'history'
 import { createRoot } from 'react-dom/client'
 import { Router } from 'react-router-dom'
 
 import { App, Settings, Tasks } from '../App'
+
+jest.mock('@nlpdev/database', () => {
+  const db = new Map<string, TodoItem>()
+  db.set('0', { id: '0', name: 'foo', description: 'bar', completed: false })
+  return {
+    ItemDB: {
+      create: async (item: TodoItem) => {
+        db.set(item.id, item)
+      },
+      query: async () => {
+        return [...db.values()]
+      },
+      update: async (item: TodoItem) => {
+        db.set(item.id, item)
+      },
+      delete: async (id: string) => {
+        db.delete(id)
+      }
+    }
+  }
+})
 
 let container: HTMLDivElement | null = null
 beforeEach(() => {
@@ -14,6 +36,7 @@ beforeEach(() => {
 afterEach(() => {
   document.body.removeChild(container!)
   container = null
+  jest.resetModules()
 })
 
 describe('test App', () => {
