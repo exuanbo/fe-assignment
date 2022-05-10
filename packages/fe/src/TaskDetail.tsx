@@ -67,7 +67,7 @@ export const TaskDetail: React.FC = () => {
         p: 2,
         mt: 0.75,
         mx: 2.25,
-        mb: 2,
+        mb: 3.3,
         backgroundColor: colors.grey[mode === 'light' ? 50 : 900]
       }}>
       <Stack spacing={2}>

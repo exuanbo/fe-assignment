@@ -57,7 +57,7 @@ export const App: React.FC = () => {
       <CssBaseline />
       <GlobalStyles styles={{ '#app': { backgroundColor: colors.grey[mode === 'light' ? 50 : 900] } }} />
       <Container maxWidth='sm' sx={{ height: '100vh', display: 'flex', alignItems: 'center' }}>
-        <Paper sx={{ height: '35rem', width: '100%' }}>
+        <Paper sx={{ height: '32rem', width: '100%' }}>
           <Stack height='100%'>
             <Stack
               direction='row'

@@ -28,10 +28,10 @@ const Task: React.FC<{ todoItem: TodoItem; mode: PaletteMode }> = memo(({ todoIt
     <Link key={id} to={`/${id}`} style={{ textDecoration: 'none' }}>
       <Paper elevation={1} sx={{ p: 0.5, backgroundColor: colors.grey[mode === 'light' ? 50 : 900] }}>
         <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{ px: 1, py: 0.5 }}>
-          <Typography {...(completed ? { sx: { textDecoration: 'line-through', color: 'grey' } } : undefined)}>
+          <Typography {...(completed ? { style: { textDecoration: 'line-through', color: 'grey' } } : undefined)}>
             {name}
           </Typography>
-          <Checkbox size='medium' checked={completed} onClick={handleClickCheckbox} />
+          <Checkbox size='small' checked={completed} onClick={handleClickCheckbox} />
         </Stack>
       </Paper>
     </Link>
@@ -62,7 +62,7 @@ export const Tasks: React.FC = () => {
     palette: { mode }
   } = useTheme()
   return (
-    <Stack spacing={1.5} sx={{ height: '100%', width: '100%', py: 0.75, px: 2 }}>
+    <Stack spacing={1.75} sx={{ height: '100%', width: '100%', py: 0.75, px: 2 }}>
       <Stack direction='row' justifyContent='space-between'>
         <FormControl size='small'>
           <Select
@@ -78,7 +78,7 @@ export const Tasks: React.FC = () => {
           Add a Task
         </Button>
       </Stack>
-      <Stack spacing={2.25} sx={{ height: '28rem', p: 0.25, overflowY: 'auto' }}>
+      <Stack spacing={3.25} sx={{ height: '24rem', px: 0.25, pt: 0.25, pb: 1, overflowY: 'auto' }}>
         {todoItems
           .filter(todoItemFilter)
           .sort((a, b) => Number(b.id) - Number(a.id))
