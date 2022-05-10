@@ -4,6 +4,7 @@ import {
   colors,
   FormControl,
   MenuItem,
+  PaletteMode,
   Paper,
   Select,
   Stack,
@@ -11,10 +12,31 @@ import {
   useTheme
 } from '@mui/material'
 import { TodoItem } from '@nlpdev/database'
-import React, { useState } from 'react'
+import React, { memo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useStore } from './store'
+
+const Task: React.FC<{ todoItem: TodoItem; mode: PaletteMode }> = memo(({ todoItem, mode }) => {
+  const updateTodoItem = useStore((state) => state.updateTodoItem)
+  const { id, name, completed } = todoItem
+  const handleClickCheckbox = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.preventDefault()
+    updateTodoItem({ ...todoItem, completed: !completed })
+  }
+  return (
+    <Link key={id} to={`/${id}`} style={{ textDecoration: 'none' }}>
+      <Paper elevation={1} sx={{ p: 0.5, backgroundColor: colors.grey[mode === 'light' ? 50 : 900] }}>
+        <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{ px: 1, py: 0.5 }}>
+          <Typography {...(completed ? { sx: { textDecoration: 'line-through', color: 'grey' } } : undefined)}>
+            {name}
+          </Typography>
+          <Checkbox size='medium' checked={completed} onClick={handleClickCheckbox} />
+        </Stack>
+      </Paper>
+    </Link>
+  )
+})
 
 type Visibility = 'all' | 'active' | 'completed'
 
@@ -32,14 +54,13 @@ const getTodoItemFilter = (visibility: Visibility): TodoItemFilter => {
 }
 
 export const Tasks: React.FC = () => {
-  const {
-    palette: { mode }
-  } = useTheme()
   const [visibility, setVisibility] = useState<Visibility>('all')
   const todoItemFilter = getTodoItemFilter(visibility)
   const navigate = useNavigate()
   const todoItems = useStore((state) => state.todoItems)
-  const updateTodoItem = useStore((state) => state.updateTodoItem)
+  const {
+    palette: { mode }
+  } = useTheme()
   return (
     <Stack spacing={1.5} sx={{ height: '100%', width: '100%', py: 0.75, px: 2 }}>
       <Stack direction='row' justifyContent='space-between'>
@@ -61,26 +82,9 @@ export const Tasks: React.FC = () => {
         {todoItems
           .filter(todoItemFilter)
           .sort((a, b) => Number(b.id) - Number(a.id))
-          .map((todoItem) => {
-            const { id, name, completed } = todoItem
-            const handleClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-              event.preventDefault()
-              updateTodoItem({ ...todoItem, completed: !completed })
-            }
-            return (
-              <Link key={id} to={`/${id}`} style={{ textDecoration: 'none' }}>
-                <Paper elevation={1} sx={{ p: 0.5, backgroundColor: colors.grey[mode === 'light' ? 50 : 900] }}>
-                  <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{ px: 1, py: 0.5 }}>
-                    <Typography
-                      {...(completed ? { style: { textDecoration: ' line-through', color: 'grey' } } : undefined)}>
-                      {name}
-                    </Typography>
-                    <Checkbox size='medium' checked={completed} onClick={handleClick} />
-                  </Stack>
-                </Paper>
-              </Link>
-            )
-          })}
+          .map((todoItem) => (
+            <Task key={todoItem.id} todoItem={todoItem} mode={mode} />
+          ))}
       </Stack>
     </Stack>
   )
