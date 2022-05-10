@@ -13,7 +13,12 @@ const config: Config.InitialOptions = {
       useESM: true,
       isolatedModules: true
     }
-  }
+  },
+  collectCoverage: true,
+  collectCoverageFrom: [
+    'packages/fe/**/*.{ts,tsx}',
+    '!packages/fe/src/index.tsx'
+  ]
 }
 
 export default config
