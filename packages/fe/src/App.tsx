@@ -189,8 +189,8 @@ export const Tasks: React.FC = () => {
   const todoItems = useStore((state) => state.todoItems)
   const updateTodoItem = useStore((state) => state.updateTodoItem)
   return (
-    <Box sx={{ height: '100%', width: '100%' }}>
-      <Stack direction='row' justifyContent='space-between' sx={{ px: 2, py: 0.75, position: 'sticky' }}>
+    <Stack spacing={1.5} sx={{ height: '100%', width: '100%', py: 0.75, px: 2 }}>
+      <Stack direction='row' justifyContent='space-between'>
         <FormControl size='small'>
           <Select
             value={viewOption}
@@ -205,7 +205,7 @@ export const Tasks: React.FC = () => {
           Add a Task
         </Button>
       </Stack>
-      <Stack spacing={2} sx={{ height: '480px', px: 2.25, py: 1.25, overflowY: 'auto' }}>
+      <Stack spacing={2.25} sx={{ height: '28rem', p: 0.25, overflowY: 'auto' }}>
         {todoItems
           .filter(todoItemFilter)
           .sort((a, b) => Number(b.id) - Number(a.id))
@@ -230,7 +230,7 @@ export const Tasks: React.FC = () => {
             )
           })}
       </Stack>
-    </Box>
+    </Stack>
   )
 }
 
@@ -272,7 +272,7 @@ export const App: React.FC = () => {
       <CssBaseline />
       <GlobalStyles styles={{ '#app': { backgroundColor: colors.grey[mode === 'light' ? 50 : 900] } }} />
       <Container maxWidth='sm' sx={{ height: '100vh', display: 'flex', alignItems: 'center' }}>
-        <Paper sx={{ height: '600px', width: '100%' }}>
+        <Paper sx={{ height: '35rem', width: '100%' }}>
           <Stack height='100%'>
             <Stack
               direction='row'
